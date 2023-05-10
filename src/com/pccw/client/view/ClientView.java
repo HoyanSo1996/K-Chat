@@ -1,0 +1,82 @@
+package com.pccw.client.view;
+
+import com.pccw.common.User;
+import com.pccw.utils.Utility;
+
+/**
+ * Class ClientView
+ *
+ * @author KennySu
+ * @date 2023/5/10
+ */
+public class ClientView {
+    private boolean loop = true;  // 控制菜单首页
+    private String key = "";       // 接收用户的键盘输入
+
+    public static void main(String[] args) {
+        ClientView cv = new ClientView();
+        cv.mainMenu();
+    }
+
+    private void mainMenu() {
+        while (loop) {
+            System.out.println("===========欢迎登录网络通信系统===========");
+            System.out.println("\t\t\t 1 登录系统");
+            System.out.println("\t\t\t 9 退出系统");
+            System.out.println("请输入你的选择：");
+            key = Utility.readString(1);
+
+            switch (key) {
+                case "1":
+                    System.out.println("请输入账号：");
+                    String userId = Utility.readString(20);
+                    System.out.println("请输入密码：");
+                    String password = Utility.readString(20);
+                    User user = new User(userId, password);
+
+                    // 登录验证
+                    // todo
+                    if (true) {
+                        System.out.println("===========欢迎 " + userId + " 登录成功===========");
+                        // 进入二级菜单
+                        while (loop) {
+                            System.out.println("===========网络通信系统二级菜单(用户: " + userId + " )===========");
+                            System.out.println("\t\t 1 显示在线用户列表");
+                            System.out.println("\t\t 2 群发消息");
+                            System.out.println("\t\t 3 私聊消息");
+                            System.out.println("\t\t 4 发送文件");
+                            System.out.println("\t\t 9 用户登出");
+                            System.out.println("请输入你的选择：");
+                            key = Utility.readString(1);
+
+                            switch (key) {
+                                case "1":
+                                    System.out.println("显示在线用户列表");
+                                    break;
+                                case "2" :
+                                    System.out.println("群发消息");
+                                    break;
+                                case "3" :
+                                    System.out.println("私聊消息");
+                                    break;
+                                case "4" :
+                                    System.out.println("发送文件");
+                                    break;
+                                case "9" :
+                                    System.out.println("用户" + userId + "登出...");
+                                    break;
+                            }
+                        }
+                    } else {
+                        System.out.println("===========  登  录  失  败  ===========");
+                    }
+                    break;
+
+                case "9":
+                    System.out.println("===========  退  出  系  统  ===========");
+                    loop = false;
+                    break;
+            }
+        }
+    }
+}
