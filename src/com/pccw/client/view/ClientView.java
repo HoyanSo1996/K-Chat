@@ -1,5 +1,6 @@
 package com.pccw.client.view;
 
+import com.pccw.client.service.ClientService;
 import com.pccw.common.User;
 import com.pccw.utils.Utility;
 
@@ -10,13 +11,11 @@ import com.pccw.utils.Utility;
  * @date 2023/5/10
  */
 public class ClientView {
+
     private boolean loop = true;  // 控制菜单首页
     private String key = "";       // 接收用户的键盘输入
 
-    public static void main(String[] args) {
-        ClientView cv = new ClientView();
-        cv.mainMenu();
-    }
+    private ClientService clientService = new ClientService();
 
     private void mainMenu() {
         while (loop) {
@@ -32,11 +31,9 @@ public class ClientView {
                     String userId = Utility.readString(20);
                     System.out.println("请输入密码：");
                     String password = Utility.readString(20);
-                    User user = new User(userId, password);
 
                     // 登录验证
-                    // todo
-                    if (true) {
+                    if (clientService.login(userId, password)) {
                         System.out.println("===========欢迎 " + userId + " 登录成功===========");
                         // 进入二级菜单
                         while (loop) {
@@ -78,5 +75,10 @@ public class ClientView {
                     break;
             }
         }
+    }
+
+    public static void main(String[] args) {
+        ClientView cv = new ClientView();
+        cv.mainMenu();
     }
 }
