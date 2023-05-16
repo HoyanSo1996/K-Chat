@@ -17,7 +17,7 @@ public class ClientView {
 
     private ClientService clientService = new ClientService();
 
-    private void mainMenu() {
+    public void mainMenu() {
         while (loop) {
             System.out.println("===========欢迎登录网络通信系统===========");
             System.out.println("\t\t\t 1 登录系统");
@@ -34,15 +34,15 @@ public class ClientView {
 
                     // 登录验证
                     if (clientService.login(userId, password)) {
-                        System.out.println("===========欢迎 " + userId + " 登录成功===========");
+                        System.out.println("=========== 用户 " + userId + " 登录成功 ===========");
                         // 进入二级菜单
                         while (loop) {
-                            System.out.println("===========网络通信系统二级菜单(用户: " + userId + " )===========");
+                            System.out.println("=========== 网络通信系统二级菜单(用户: " + userId + ") ===========");
                             System.out.println("\t\t 1 显示在线用户列表");
-                            System.out.println("\t\t 2 群发消息");
-                            System.out.println("\t\t 3 私聊消息");
-                            System.out.println("\t\t 4 发送文件");
-                            System.out.println("\t\t 9 用户登出");
+                            System.out.println("\t\t 2 群  发  消  息");
+                            System.out.println("\t\t 3 私  聊  消  息");
+                            System.out.println("\t\t 4 发  送  文  件");
+                            System.out.println("\t\t 9 用  户  登  出");
                             System.out.println("请输入你的选择：");
                             key = Utility.readString(1);
 
@@ -65,7 +65,7 @@ public class ClientView {
                             }
                         }
                     } else {
-                        System.out.println("===========  登  录  失  败  ===========");
+                        System.out.println("=========== 用户 " + userId + " 登录失败 ===========");
                     }
                     break;
 
@@ -75,10 +75,5 @@ public class ClientView {
                     break;
             }
         }
-    }
-
-    public static void main(String[] args) {
-        ClientView cv = new ClientView();
-        cv.mainMenu();
     }
 }

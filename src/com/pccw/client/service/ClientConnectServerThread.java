@@ -7,13 +7,15 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 
 /**
+ * Class ClientConnectServerThread
+ *
  * @author KennySo
  * @version 1.0
  */
 public class ClientConnectServerThread extends Thread {
 
     // 该线程需要持有socket
-    private Socket socket;
+    private final Socket socket;
 
     public ClientConnectServerThread(Socket socket) {
         this.socket = socket;

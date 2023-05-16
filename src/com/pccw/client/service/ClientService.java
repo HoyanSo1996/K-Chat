@@ -10,18 +10,19 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
+ * Class ClientService
+ *
  * @author KennySo
  * @version 1.0
  * 该类完成 用户登录验证 和 用户注册 功能
  */
 public class ClientService {
 
-    // 因为可能在其他地方用到user信息，所以把它提取出来做成员属性
-    private final User user = new User();
-    // 将socket提取出来方便管理
-    private Socket socket;
+    private final User user = new User(); // 因为可能在其他功能中用到user信息，所以把它提取出来做成员属性
 
-    private final ThreadManagerService threadManagerService = new ThreadManagerService();
+    private Socket socket; // 将socket提取出来方便管理
+
+    private final ClientThreadManagerService clientThreadManagerService = new ClientThreadManagerService();
 
 
     /**
@@ -30,7 +31,7 @@ public class ClientService {
      * @implNote 如果登录成功,就在客户端创建一条线程与服务端进行通信,并把这条线程使用集合管理起来
      *
      * @param userId 用户id
-     * @param password
+     * @param password 用户密码
      * @return
      */
     public boolean login(String userId, String password) {
@@ -48,19 +49,19 @@ public class ClientService {
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             Message message = (Message) ois.readObject();
 
-            // 如果登录失败
-            if (message.getMsgType().equals(CommonUtils.LOGIN_FAILED)) {
+            // 4.1 如果登录失败
+            if (message.getMsgType().equals(CommonUtils.MSG_LOGIN_FAILED)) {
                 socket.close();
                 return false;
             }
 
-            // 如果user登录成功
-            // 4.创建一条线程和服务器保持联系
+            // 4.2 如果user登录成功
+            // 5.创建一条线程和服务器保持联系
             ClientConnectServerThread clientConnectServerThread = new ClientConnectServerThread(socket);
             clientConnectServerThread.start();
 
-            // 5.将线程放入一个集合进行管理(为了后续客户端的拓展)
-            threadManagerService.addThread(userId, clientConnectServerThread);
+            // 6.将线程放入一个集合进行管理(为了后续客户端的拓展)
+            clientThreadManagerService.addThread(userId, clientConnectServerThread);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,7 +70,5 @@ public class ClientService {
     }
 
 
-    /**
-     * 用户注册功能
-     */
+
 }
