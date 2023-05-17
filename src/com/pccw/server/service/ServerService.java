@@ -53,7 +53,7 @@ public class ServerService {
                 // 3.1 登录失败
                 if (!ValidatedUserInfo(user.getUserId(), user.getPassword())) {
                     System.out.println("log: { 用户 " + user.getUserId() + " 登录失败. }");
-                    message.setMsgType(CommonUtils.MSG_LOGIN_FAILED);
+                    message.setMsgType(CommonUtils.MSG.LOGIN_FAILED);
                     oos.writeObject(message);
                     socket.close();  // 关闭socket
                     continue;
@@ -68,7 +68,7 @@ public class ServerService {
                 serverThreadManagerService.addThread(user.getUserId(), serverConnectClientThread);
 
                 // 6.发送成功连接成功信息
-                message.setMsgType(CommonUtils.MSG_LOGIN_SUCCEEDED);
+                message.setMsgType(CommonUtils.MSG.LOGIN_SUCCEEDED);
                 oos.writeObject(message);
             }
 
@@ -85,6 +85,12 @@ public class ServerService {
         }
     }
 
+    /**
+     * 验证用户id和密码
+     * @param userId
+     * @param password
+     * @return
+     */
     public boolean ValidatedUserInfo(String userId, String password) {
         User user = userData.get(userId);
         if (user == null) {

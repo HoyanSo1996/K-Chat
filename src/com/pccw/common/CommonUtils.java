@@ -8,7 +8,14 @@ package com.pccw.common;
  */
 public class CommonUtils {
 
-    public static final String MSG_LOGIN_SUCCEEDED = "1";  // 登录成功消息
-    public static final String MSG_LOGIN_FAILED = "2";     // 登录失败消息
+    public enum MSG {
+        LOGIN_SUCCEEDED,  // 登录成功消息
+        LOGIN_FAILED,     // 登录失败消息
+        LOGOUT_SUCCESS,
 
+        GET_ONLINE_USERS,
+        RET_ONLINE_USERS,
+
+        COMMON_MEG;
+    }
 }

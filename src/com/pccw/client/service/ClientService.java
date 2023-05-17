@@ -3,7 +3,7 @@ package com.pccw.client.service;
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
 import com.pccw.common.User;
-
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -50,7 +50,7 @@ public class ClientService {
             Message message = (Message) ois.readObject();
 
             // 4.1 如果登录失败
-            if (message.getMsgType().equals(CommonUtils.MSG_LOGIN_FAILED)) {
+            if (message.getMsgType().equals(CommonUtils.MSG.LOGIN_FAILED)) {
                 socket.close();
                 return false;
             }
@@ -70,5 +70,28 @@ public class ClientService {
     }
 
 
+    /**
+     * 获取在线用户功能
+     */
+    public void getOnlineUserList() {
+        Message message = new Message();
+        message.setSender(user.getUserId());
+        message.setMsgType(CommonUtils.MSG.GET_ONLINE_USERS);
 
+        try {
+            /*
+                1. 先从先从管理器中通过userId获取线程对象
+                2. 再通过线程对象获取socket
+                3. 通过socket获取对应的OutputStream
+                TODO (暂且不知道为什么不能用本类成员属性中的socket, 可能是后期一个用户有多个socket用来同步发消息和发文件, 方便拓展or面对对象编程)
+             */
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    clientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
+            );
+            oos.writeObject(message);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

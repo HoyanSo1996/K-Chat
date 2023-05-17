@@ -1,7 +1,9 @@
 package com.pccw.server.service;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class ServerThreadManagerService
@@ -11,7 +13,7 @@ import java.util.Map;
  */
 public class ServerThreadManagerService {
 
-    private final Map<String, ServerConnectClientThread> threadManager = new HashMap();
+    private final static Map<String, ServerConnectClientThread> threadManager = new HashMap();
 
 
     /**
@@ -30,5 +32,19 @@ public class ServerThreadManagerService {
      */
     public ServerConnectClientThread getThread(String userId) {
         return threadManager.get(userId);
+    }
+
+    /**
+     * 获取所有在线用户
+     * @return
+     */
+    public static String getAllOnlineUsers() {
+        Iterator<String> iterator = threadManager.keySet().iterator();
+        String onlineUserList = "";
+
+        if (iterator.hasNext()) {
+            onlineUserList += iterator.next() + " ";
+        }
+        return onlineUserList;
     }
 }

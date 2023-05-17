@@ -15,7 +15,7 @@ public class Message implements Serializable {
     private String receiver;
     private String content;
     private String time;
-    private String msgType;  // 消息类型(可以在接口中定义消息类型)
+    private CommonUtils.MSG msgType;  // 消息类型(可以在接口中定义消息类型)
 
     public Message() {
     }
@@ -60,11 +60,11 @@ public class Message implements Serializable {
         this.time = time;
     }
 
-    public String getMsgType() {
+    public CommonUtils.MSG getMsgType() {
         return msgType;
     }
 
-    public void setMsgType(String msgType) {
+    public void setMsgType(CommonUtils.MSG msgType) {
         this.msgType = msgType;
     }
 }

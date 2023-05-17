@@ -1,8 +1,10 @@
 package com.pccw.server.service;
 
+import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
 
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -30,6 +32,21 @@ public class ServerConnectClientThread extends Thread {
             try {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 Message message = (Message) ois.readObject();
+
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+
+                // (1)判断消息类型是否是 获取在线用户
+                if (message.getMsgType().equals(CommonUtils.MSG.GET_ONLINE_USERS)) {
+                    System.out.println("log: { " + userId + " 请求在线用户列表.}");
+
+                    Message responseMsg = new Message();
+                    responseMsg.setReceiver(message.getSender());
+                    responseMsg.setContent(ServerThreadManagerService.getAllOnlineUsers());
+                    oos.writeObject(responseMsg);
+
+                } else {
+                    // TODO 其他业务消息
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
