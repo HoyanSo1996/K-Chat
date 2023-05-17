@@ -46,22 +46,30 @@ public class ClientView {
                             System.out.println("请输入你的选择：");
                             key = Utility.readString(1);
 
-                            switch (key) {
-                                case "1":
-                                    clientService.getOnlineUserList();
-                                    break;
-                                case "2" :
-                                    // todo 群发消息
-                                    break;
-                                case "3" :
-                                    // todo 私聊消息
-                                    break;
-                                case "4" :
-                                    // todo 发送文件
-                                    break;
-                                case "9" :
-                                    System.out.println("用户 " + userId + " 登出...");
-                                    break;
+                            try {
+                                switch (key) {
+                                    case "1":
+                                        clientService.getOnlineUserList();
+                                        Thread.sleep(50);
+                                        break;
+                                    case "2":
+                                        // todo 群发消息
+                                        Thread.sleep(50);
+                                        break;
+                                    case "3":
+                                        // todo 私聊消息
+                                        Thread.sleep(50);
+                                        break;
+                                    case "4":
+                                        // todo 发送文件
+                                        Thread.sleep(50);
+                                        break;
+                                    case "9":
+                                        System.out.println("用户 " + userId + " 登出...");
+                                        break;
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
                     } else {

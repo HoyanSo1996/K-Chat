@@ -41,6 +41,7 @@ public class ServerConnectClientThread extends Thread {
 
                     Message responseMsg = new Message();
                     responseMsg.setReceiver(message.getSender());
+                    responseMsg.setMsgType(CommonUtils.MSG.RET_ONLINE_USERS);
                     responseMsg.setContent(ServerThreadManagerService.getAllOnlineUsers());
                     oos.writeObject(responseMsg);
 

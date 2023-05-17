@@ -2,8 +2,6 @@ package com.pccw.client.service;
 
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
-
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
@@ -29,8 +27,8 @@ public class ClientConnectServerThread extends Thread {
     @Override
     public void run() {
         // 客户端线程 等待读取从服务器端回复的消息
-        while (true) {
-            try {
+        try {
+            while (true) {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 Message message = (Message) ois.readObject();
 
@@ -45,18 +43,11 @@ public class ClientConnectServerThread extends Thread {
                 } else {
                     // TODO 其他业务消息
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
-        }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
     }
 }

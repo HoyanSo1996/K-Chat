@@ -42,8 +42,8 @@ public class ServerThreadManagerService {
         Iterator<String> iterator = threadManager.keySet().iterator();
         String onlineUserList = "";
 
-        if (iterator.hasNext()) {
-            onlineUserList += iterator.next() + " ";
+        while (iterator.hasNext()) {
+            onlineUserList += (iterator.next() + " ");
         }
         return onlineUserList;
     }

@@ -20,7 +20,7 @@ public class ClientService {
 
     private final User user = new User(); // 因为可能在其他功能中用到user信息，所以把它提取出来做成员属性
 
-    private Socket socket; // 将socket提取出来方便管理
+    private Socket socket; // 将socket抽取出来方便管理
 
     private final ClientThreadManagerService clientThreadManagerService = new ClientThreadManagerService();
 
