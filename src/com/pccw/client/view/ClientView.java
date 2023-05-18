@@ -12,13 +12,14 @@ import com.pccw.utils.Utility;
  */
 public class ClientView {
 
-    private boolean loop = true;  // 控制菜单首页
+    private boolean loop1 = true;  // 控制一级菜单
+    private boolean loop2 = true;  // 控制二级菜单
     private String key = "";       // 接收用户的键盘输入
 
     private ClientService clientService = new ClientService();
 
     public void mainMenu() {
-        while (loop) {
+        while (loop1) {
             System.out.println("===========欢迎登录网络通信系统===========");
             System.out.println("\t\t\t 1 登录系统");
             System.out.println("\t\t\t 9 退出系统");
@@ -36,7 +37,7 @@ public class ClientView {
                     if (clientService.login(userId, password)) {
                         System.out.println("=========== 用户 " + userId + " 登录成功 ===========");
                         // 进入二级菜单
-                        while (loop) {
+                        while (loop2) {
                             System.out.println("=========== 网络通信系统二级菜单(用户: " + userId + ") ===========");
                             System.out.println("\t\t 1 显示在线用户列表");
                             System.out.println("\t\t 2 群  发  消  息");
@@ -65,6 +66,7 @@ public class ClientView {
                                         Thread.sleep(50);
                                         break;
                                     case "9":
+                                        loop2 = false;
                                         System.out.println("用户 " + userId + " 登出...");
                                         break;
                                 }
@@ -79,7 +81,7 @@ public class ClientView {
 
                 case "9":
                     System.out.println("===========  退  出  系  统  ===========");
-                    loop = false;
+                    loop1 = false;
                     break;
             }
         }

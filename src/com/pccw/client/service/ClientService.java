@@ -3,6 +3,7 @@ package com.pccw.client.service;
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
 import com.pccw.common.User;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,12 +28,12 @@ public class ClientService {
 
     /**
      * 用户登录验证功能
-     * @implNote 将userId和password封装成一个User类发送给服务器进行验证
-     * @implNote 如果登录成功,就在客户端创建一条线程与服务端进行通信,并把这条线程使用集合管理起来
      *
-     * @param userId 用户id
+     * @param userId   用户id
      * @param password 用户密码
      * @return
+     * @implNote 将userId和password封装成一个User类发送给服务器进行验证
+     * @implNote 如果登录成功, 就在客户端创建一条线程与服务端进行通信, 并把这条线程使用集合管理起来
      */
     public boolean login(String userId, String password) {
         user.setUserId(userId);
