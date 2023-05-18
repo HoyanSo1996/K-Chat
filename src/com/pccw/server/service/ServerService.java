@@ -20,8 +20,6 @@ public class ServerService {
 
     private ServerSocket serverSocket;
 
-    private final ServerThreadManagerService serverThreadManagerService = new ServerThreadManagerService();
-
     // 创建一个集合, 充当临时DataBase, 存储用户名和密码
     // 这里使用ConcurrentHashMap,处理并发的集合,没有线程安全问题
     private static ConcurrentHashMap<String, User> userData = new ConcurrentHashMap();
@@ -65,7 +63,7 @@ public class ServerService {
                 serverConnectClientThread.start();
 
                 // 5.将线程放入一个集合进行管理
-                serverThreadManagerService.addThread(user.getUserId(), serverConnectClientThread);
+                ServerThreadManagerService.addThread(user.getUserId(), serverConnectClientThread);
 
                 // 6.发送成功连接成功信息
                 message.setMsgType(CommonUtils.MSG.LOGIN_SUCCEEDED);

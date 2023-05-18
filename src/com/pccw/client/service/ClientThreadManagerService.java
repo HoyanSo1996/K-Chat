@@ -1,5 +1,7 @@
 package com.pccw.client.service;
 
+import com.pccw.common.User;
+
 import java.util.HashMap;
 
 /**
@@ -11,23 +13,33 @@ import java.util.HashMap;
  */
 public class ClientThreadManagerService {
 
-    private HashMap<String, ClientConnectServerThread> threadManager = new HashMap();
+    private static HashMap<String, ClientConnectServerThread> threadManager = new HashMap();
 
     /**
      * 将某个线程加入集合
      * @param userId
      * @param clientConnectServerThread
      */
-    public void addThread(String userId, ClientConnectServerThread clientConnectServerThread) {
+    public static void addThread(String userId, ClientConnectServerThread clientConnectServerThread) {
         threadManager.put(userId, clientConnectServerThread);
     }
+
+
+    /**
+     * 将线程从集合中删除
+     * @param userId
+     */
+    public static void removeThread(String userId) {
+        threadManager.remove(userId);
+    }
+
 
     /**
      * 通过userId获取对应的线程
      * @param userId
      * @return
      */
-    public ClientConnectServerThread getThread(String userId) {
+    public static ClientConnectServerThread getThread(String userId) {
         return threadManager.get(userId);
     }
 }

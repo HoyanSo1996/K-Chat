@@ -2,8 +2,11 @@ package com.pccw.client.service;
 
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
+
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * Class ClientConnectServerThread
@@ -16,7 +19,10 @@ public class ClientConnectServerThread extends Thread {
     // 该线程需要持有socket
     private final Socket socket;
 
-    public ClientConnectServerThread(Socket socket) {
+    private final String userId;
+
+    public ClientConnectServerThread(String userId, Socket socket) {
+        this.userId = userId;
         this.socket = socket;
     }
 
@@ -27,8 +33,8 @@ public class ClientConnectServerThread extends Thread {
     @Override
     public void run() {
         // 客户端线程 等待读取从服务器端回复的消息
-        try {
-            while (true) {
+        while (true) {
+            try {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 Message message = (Message) ois.readObject();
 
@@ -40,14 +46,38 @@ public class ClientConnectServerThread extends Thread {
                     for (String user : users) {
                         System.out.println("用户: " + user);
                     }
+
+                // (2)判断消息类型是否是 用户正常登出
+                } else if (message.getMsgType().equals(CommonUtils.MSG.LOGOUT_SUCCEEDED)) {
+                    // 关闭socket
+                    socket.close();
+                    // 移除线程管理器中的对应的线程
+                    ClientThreadManagerService.removeThread(userId);
+                    break;
+
                 } else {
                     // TODO 其他业务消息
                 }
+
+            } catch (SocketException e) {
+                // 如果服务器挂机, 由于循环中的 ois.readObject() 正在阻塞状态, 那么读取会报错, 直接跳到这一步.
+                System.out.println("info: 服务器异常, 断开连接... ");
+
+                try {
+                    // 关闭socket
+                    socket.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+                // 移除线程管理器中的对应的线程
+                ClientThreadManagerService.removeThread(userId);
+
+                // 退出循环
+                break;
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-
         }
     }
 }

@@ -20,7 +20,7 @@ public class ClientView {
 
     public void mainMenu() {
         while (loop1) {
-            System.out.println("===========欢迎登录网络通信系统===========");
+            System.out.println("=========== 欢迎登录网络通信系统 ===========");
             System.out.println("\t\t\t 1 登录系统");
             System.out.println("\t\t\t 9 退出系统");
             System.out.println("请输入你的选择：");
@@ -38,12 +38,12 @@ public class ClientView {
                         System.out.println("=========== 用户 " + userId + " 登录成功 ===========");
                         // 进入二级菜单
                         while (loop2) {
-                            System.out.println("=========== 网络通信系统二级菜单(用户: " + userId + ") ===========");
-                            System.out.println("\t\t 1 显示在线用户列表");
-                            System.out.println("\t\t 2 群  发  消  息");
-                            System.out.println("\t\t 3 私  聊  消  息");
-                            System.out.println("\t\t 4 发  送  文  件");
-                            System.out.println("\t\t 9 用  户  登  出");
+                            System.out.println("=========== 网络通信系统二级菜单 ===========");
+                            System.out.println("\t\t\t 1 显示在线用户列表");
+                            System.out.println("\t\t\t 2 群  发  消  息");
+                            System.out.println("\t\t\t 3 私  聊  消  息");
+                            System.out.println("\t\t\t 4 发  送  文  件");
+                            System.out.println("\t\t\t 9 用  户  登  出");
                             System.out.println("请输入你的选择：");
                             key = Utility.readString(1);
 
@@ -66,8 +66,9 @@ public class ClientView {
                                         Thread.sleep(50);
                                         break;
                                     case "9":
+                                        clientService.logout();
                                         loop2 = false;
-                                        System.out.println("用户 " + userId + " 登出...");
+                                        System.out.println("=========== 用户 " + userId + " 退出登录 ===========");
                                         break;
                                 }
                             } catch (InterruptedException e) {

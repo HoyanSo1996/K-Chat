@@ -17,25 +17,36 @@ public class ServerThreadManagerService {
 
 
     /**
-     * 将线程放入线程管理器
+     * 将线程放入集合
      * @param userId
      * @param serverConnectServerThread
      */
-    public void addThread(String userId, ServerConnectClientThread serverConnectServerThread) {
+    public static void addThread(String userId, ServerConnectClientThread serverConnectServerThread) {
         threadManager.put(userId, serverConnectServerThread);
     }
 
+
     /**
-     * 根据userId从线程管理器获取线程
+     * 将线程从集合中删除
+     * @param userId
+     */
+    public static void removeThread(String userId) {
+        threadManager.remove(userId);
+    }
+
+
+    /**
+     * 根据userId从集合获取线程
      * @param userId
      * @return
      */
-    public ServerConnectClientThread getThread(String userId) {
+    public static ServerConnectClientThread getThread(String userId) {
         return threadManager.get(userId);
     }
 
+
     /**
-     * 获取所有在线用户
+     * 获取集合中所有在线用户
      * @return
      */
     public static String getAllOnlineUsers() {

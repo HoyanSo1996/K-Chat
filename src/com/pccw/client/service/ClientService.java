@@ -7,6 +7,7 @@ import com.pccw.common.User;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -23,15 +24,13 @@ public class ClientService {
 
     private Socket socket; // 将socket抽取出来方便管理
 
-    private final ClientThreadManagerService clientThreadManagerService = new ClientThreadManagerService();
-
 
     /**
      * 用户登录验证功能
      *
      * @param userId   用户id
      * @param password 用户密码
-     * @return
+     * @return 是否成功登录的标志
      * @implNote 将userId和password封装成一个User类发送给服务器进行验证
      * @implNote 如果登录成功, 就在客户端创建一条线程与服务端进行通信, 并把这条线程使用集合管理起来
      */
@@ -58,16 +57,45 @@ public class ClientService {
 
             // 4.2 如果user登录成功
             // 5.创建一条线程和服务器保持联系
-            ClientConnectServerThread clientConnectServerThread = new ClientConnectServerThread(socket);
+            ClientConnectServerThread clientConnectServerThread = new ClientConnectServerThread(user.getUserId(), socket);
             clientConnectServerThread.start();
 
             // 6.将线程放入一个集合进行管理(为了后续客户端的拓展)
-            clientThreadManagerService.addThread(userId, clientConnectServerThread);
+            ClientThreadManagerService.addThread(userId, clientConnectServerThread);
+
+            // 7.返回登录成功标记
+            return true;
+
+        } catch (ConnectException e) {
+            // 连接不上服务器, 登录失败
+            System.out.println("=========== info: 连接服务器失败 ===========");
+            return false;
 
         } catch (Exception e) {
             e.printStackTrace();
+
         }
         return true;
+    }
+
+
+    /**
+     * 用户端断开和服务器的连接
+     */
+    public void logout() {
+        Message message = new Message();
+        message.setSender(user.getUserId());
+        message.setMsgType(CommonUtils.MSG.LOGOUT);
+
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
+            );
+            oos.writeObject(message);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -87,7 +115,7 @@ public class ClientService {
                 TODO (暂且不知道为什么不能用本类成员属性中的socket, 可能是后期一个用户有多个socket用来同步发消息和发文件, 方便拓展or面对对象编程)
              */
             ObjectOutputStream oos = new ObjectOutputStream(
-                    clientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
+                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
             );
             oos.writeObject(message);
 
