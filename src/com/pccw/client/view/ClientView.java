@@ -13,10 +13,10 @@ import com.pccw.utils.Utility;
 public class ClientView {
 
     private boolean loop1 = true;  // 控制一级菜单
-    private boolean loop2 = true;  // 控制二级菜单
+    private boolean loop2;         // 控制二级菜单
     private String key = "";       // 接收用户的键盘输入
 
-    private ClientService clientService = new ClientService();
+    private final ClientService clientService = new ClientService();
 
     public void mainMenu() {
         while (loop1) {
@@ -36,6 +36,8 @@ public class ClientView {
                     // 登录验证
                     if (clientService.login(userId, password)) {
                         System.out.println("=========== 用户 " + userId + " 登录成功 ===========");
+                        loop2 = true;
+
                         // 进入二级菜单
                         while (loop2) {
                             System.out.println("=========== 网络通信系统二级菜单 ===========");
