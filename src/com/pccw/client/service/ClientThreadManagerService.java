@@ -1,7 +1,5 @@
 package com.pccw.client.service;
 
-import com.pccw.common.User;
-
 import java.util.HashMap;
 
 /**
@@ -13,7 +11,7 @@ import java.util.HashMap;
  */
 public class ClientThreadManagerService {
 
-    private static HashMap<String, ClientConnectServerThread> threadManager = new HashMap();
+    private final static HashMap<String, ClientConnectServerThread> threadManager = new HashMap();
 
     /**
      * 将某个线程加入集合

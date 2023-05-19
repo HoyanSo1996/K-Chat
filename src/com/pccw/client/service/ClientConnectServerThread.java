@@ -2,7 +2,6 @@ package com.pccw.client.service;
 
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -54,6 +53,14 @@ public class ClientConnectServerThread extends Thread {
                     // 移除线程管理器中的对应的线程
                     ClientThreadManagerService.removeThread(userId);
                     break;
+
+                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE)) {
+                    System.out.println("[" + message.getTime() + "] " +
+                             "收到 " + message.getSender() + " 的消息: " + "\"" + message.getContent() + "\"");
+
+                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED)) {
+                    System.out.println("[" + message.getTime() + "] " +
+                            "发送消息: " + "\"" + message.getContent() + "\"" + " 失败, " + message.getReceiver() + " 不在线/不存在.");
 
                 } else {
                     // TODO 其他业务消息

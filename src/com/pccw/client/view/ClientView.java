@@ -1,7 +1,6 @@
 package com.pccw.client.view;
 
 import com.pccw.client.service.ClientService;
-import com.pccw.common.User;
 import com.pccw.utils.Utility;
 
 /**
@@ -60,7 +59,7 @@ public class ClientView {
                                         Thread.sleep(50);
                                         break;
                                     case "3":
-                                        // todo 私聊消息
+                                        clientService.privateChat();
                                         Thread.sleep(50);
                                         break;
                                     case "4":

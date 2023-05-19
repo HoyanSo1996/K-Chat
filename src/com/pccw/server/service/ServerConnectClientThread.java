@@ -2,6 +2,7 @@ package com.pccw.server.service;
 
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
+import com.pccw.utils.DateUtils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,8 +37,6 @@ public class ServerConnectClientThread extends Thread {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 Message message = (Message) ois.readObject();
 
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-
                 // (1)判断消息类型是否是 获取在线用户
                 if (message.getMsgType().equals(CommonUtils.MSG.GET_ONLINE_USERS)) {
                     System.out.println("log: { " + userId + " 请求在线用户列表.}");
@@ -46,6 +45,8 @@ public class ServerConnectClientThread extends Thread {
                     responseMsg.setReceiver(message.getSender());
                     responseMsg.setMsgType(CommonUtils.MSG.RET_ONLINE_USERS);
                     responseMsg.setContent(ServerThreadManagerService.getAllOnlineUsers());
+
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                     oos.writeObject(responseMsg);
 
                 // (2)判断消息类型是否是 退出登录
@@ -53,8 +54,9 @@ public class ServerConnectClientThread extends Thread {
                     Message responseMsg = new Message();
                     responseMsg.setReceiver(message.getSender());
                     responseMsg.setMsgType(CommonUtils.MSG.LOGOUT_SUCCEEDED);
-                    oos.writeObject(responseMsg);
 
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                    oos.writeObject(responseMsg);
                     System.out.println("log: { " + userId + " 退出登录.}");
 
                     // 关闭socket
@@ -63,6 +65,34 @@ public class ServerConnectClientThread extends Thread {
                     ServerThreadManagerService.removeThread(userId);
                     // 跳出 while 循环, 结束线程
                     break;
+
+                // (3)判断消息类型是否是 普通消息
+                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE)) {
+                    ServerConnectClientThread serverThread = ServerThreadManagerService.getThread(message.getReceiver());
+
+                    // 如果线程不存在, 代表用户不在线, 发送一条消息表示用户未上线
+                    if (serverThread == null) {
+                        System.out.println("log: { " + "[" + message.getTime() + "] " +
+                                message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" "+ message.getContent() + "\" "+ "失败, " +
+                                message.getReceiver() + " 不在线/不存在.}");
+
+                        Message responseMsg = new Message();
+                        responseMsg.setReceiver(message.getReceiver());
+                        responseMsg.setContent(message.getContent());
+                        responseMsg.setTime(DateUtils.getDataTime());
+                        responseMsg.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED);
+
+                        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                        oos.writeObject(responseMsg);
+
+                    // 线程存在, 向线程所在socket转发消息
+                    } else {
+                        ObjectOutputStream oos = new ObjectOutputStream(serverThread.socket.getOutputStream());
+                        oos.writeObject(message);   // 如果用户不存在, 可以保存到数据库, 这样就可以实现离线留言
+
+                        System.out.println("log: { " + "[" + message.getTime() + "] " +
+                                message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\" }");
+                    }
 
                 } else {
                     // TODO 其他业务消息

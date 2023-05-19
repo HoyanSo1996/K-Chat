@@ -17,6 +17,9 @@ public class CommonUtils {
         GET_ONLINE_USERS,
         RET_ONLINE_USERS,
 
-        COMMON_MEG;
+        TO_ONE_MESSAGE,
+        TO_ONE_MESSAGE_FAILED,
+        TO_ALL_MESSAGE
+
     }
 }

@@ -3,6 +3,8 @@ package com.pccw.client.service;
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
 import com.pccw.common.User;
+import com.pccw.utils.DateUtils;
+import com.pccw.utils.Utility;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -123,4 +125,40 @@ public class ClientService {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * 私聊功能
+     */
+    public void privateChat() {
+        System.out.println("请输入想聊天的用户号(在线): ");
+        String receiverId = Utility.readString(20);
+        System.out.println("请输入想说的话: ");
+        String content = Utility.readString(100);
+
+        Message message = new Message();
+        // 设置 发送者, 接受者, 内容, 日期, 消息类型
+        message.setSender(user.getUserId());
+        message.setReceiver(receiverId);
+        message.setContent(content);
+        message.setTime(DateUtils.getDataTime());
+        message.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE);
+        System.out.println("[" + message.getTime() + "] " +
+                "对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\"");
+
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
+            );
+            oos.writeObject(message);
+
+        } catch (IOException e) {
+            System.out.println("[" + message.getTime() + "] " +
+                    message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" "+ message.getContent() + "\" "+ "失败, " +
+                    message.getReceiver() + " 不在线/不存在.");
+            e.printStackTrace();
+        }
+    }
+
+
 }
