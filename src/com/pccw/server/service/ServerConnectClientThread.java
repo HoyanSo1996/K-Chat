@@ -7,8 +7,10 @@ import com.pccw.utils.DateUtils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Map;
 
 /**
  * Class ServerConnectClientThread
@@ -46,8 +48,8 @@ public class ServerConnectClientThread extends Thread {
                     responseMsg.setMsgType(CommonUtils.MSG.RET_ONLINE_USERS);
                     responseMsg.setContent(ServerThreadManagerService.getAllOnlineUsers());
 
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                    oos.writeObject(responseMsg);
+                    // 转发消息给原客户端
+                    sendMessageToClient(socket.getOutputStream(), responseMsg);
 
                 // (2)判断消息类型是否是 退出登录
                 } else if (message.getMsgType().equals(CommonUtils.MSG.LOGOUT)) {
@@ -55,8 +57,8 @@ public class ServerConnectClientThread extends Thread {
                     responseMsg.setReceiver(message.getSender());
                     responseMsg.setMsgType(CommonUtils.MSG.LOGOUT_SUCCEEDED);
 
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                    oos.writeObject(responseMsg);
+                    // 转发消息给原客户端
+                    sendMessageToClient(socket.getOutputStream(), responseMsg);
                     System.out.println("log: { " + userId + " 退出登录.}");
 
                     // 关闭socket
@@ -66,14 +68,16 @@ public class ServerConnectClientThread extends Thread {
                     // 跳出 while 循环, 结束线程
                     break;
 
-                // (3)判断消息类型是否是 普通消息
+                // (3)判断消息类型是否是 私聊消息
                 } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE)) {
+                    // 获取目标客户端的socket
                     ServerConnectClientThread serverThread = ServerThreadManagerService.getThread(message.getReceiver());
 
                     // 如果线程不存在, 代表用户不在线, 发送一条消息表示用户未上线
+                    // 如果用户不存在, 可以保存到数据库, 这样就可以实现离线留言
                     if (serverThread == null) {
                         System.out.println("log: { " + "[" + message.getTime() + "] " +
-                                message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" "+ message.getContent() + "\" "+ "失败, " +
+                                message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" " + message.getContent() + "\" " + "失败, " +
                                 message.getReceiver() + " 不在线/不存在.}");
 
                         Message responseMsg = new Message();
@@ -82,20 +86,37 @@ public class ServerConnectClientThread extends Thread {
                         responseMsg.setTime(DateUtils.getDataTime());
                         responseMsg.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED);
 
-                        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                        oos.writeObject(responseMsg);
+                        // 转发消息给原客户端
+                        sendMessageToClient(socket.getOutputStream(), responseMsg);
 
-                    // 线程存在, 向线程所在socket转发消息
+                        // 线程存在, 向线程所在socket转发消息
                     } else {
-                        ObjectOutputStream oos = new ObjectOutputStream(serverThread.socket.getOutputStream());
-                        oos.writeObject(message);   // 如果用户不存在, 可以保存到数据库, 这样就可以实现离线留言
+                        /*
+                            Tips：这一层 oos 的 new ObjectOutputStream(xxx) 与上面不同, 不能直接直接
+                                  oos = new ObjectOutputStream(serverThread.socket.getOutputStream(), 否则会出现异常.
+                         */
+                        // 转发消息给指定客户端.
+                        message.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE_SUCCEEDED);
+                        sendMessageToClient(serverThread.socket.getOutputStream(), message);
 
                         System.out.println("log: { " + "[" + message.getTime() + "] " +
                                 message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\" }");
                     }
 
+                // (4)判断消息类型是否是 群发消息
+                } else if(message.getMsgType().equals(CommonUtils.MSG.TO_ALL_MESSAGE)) {
+                    // 在线程管理器中获取所有在线用户(排除自己), 然后遍历发送群发消息
+                    Map<String, ServerConnectClientThread> threadManager = ServerThreadManagerService.getThreadManager();
+                    for (String onlineUserId : threadManager.keySet()) {
+                        if (!onlineUserId.equals(message.getSender())) {
+                            sendMessageToClient(threadManager.get(onlineUserId).socket.getOutputStream(), message);
+                        }
+                    }
+                    System.out.println("log: { " + "[" + message.getTime() + "] " +
+                            message.getSender() + " 群发了消息: " + "\"" + message.getContent() + "\" }");
+
                 } else {
-                    // TODO 其他业务消息
+                    // TODO 拓展其他业务消息
                 }
             }
 
@@ -113,6 +134,16 @@ public class ServerConnectClientThread extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+
+    /**
+     * 转发消息给客户端
+     * @param outputStream 根据具体转发对象设置的输入流
+     * @param responseMsg 根据具体业务设置的消息
+     */
+    public void sendMessageToClient(OutputStream outputStream, Message responseMsg) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+        oos.writeObject(responseMsg);
     }
 }

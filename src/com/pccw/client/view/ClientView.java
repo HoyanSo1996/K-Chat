@@ -55,7 +55,7 @@ public class ClientView {
                                         Thread.sleep(50);
                                         break;
                                     case "2":
-                                        // todo 群发消息
+                                        clientService.SendToAll();
                                         Thread.sleep(50);
                                         break;
                                     case "3":

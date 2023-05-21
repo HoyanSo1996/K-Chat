@@ -14,6 +14,9 @@ public class ServerThreadManagerService {
 
     private final static Map<String, ServerConnectClientThread> threadManager = new HashMap();
 
+    public static Map<String, ServerConnectClientThread> getThreadManager() {
+        return threadManager;
+    }
 
     /**
      * 将线程放入集合

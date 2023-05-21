@@ -75,8 +75,8 @@ public class ClientService {
 
         } catch (Exception e) {
             e.printStackTrace();
-
         }
+
         return true;
     }
 
@@ -90,11 +90,7 @@ public class ClientService {
         message.setMsgType(CommonUtils.MSG.LOGOUT);
 
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(
-                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
-            );
-            oos.writeObject(message);
-
+            SendMessageToServer(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,17 +106,7 @@ public class ClientService {
         message.setMsgType(CommonUtils.MSG.GET_ONLINE_USERS);
 
         try {
-            /*
-                1. 先从先从管理器中通过userId获取线程对象
-                2. 再通过线程对象获取socket
-                3. 通过socket获取对应的OutputStream
-                TODO (暂且不知道为什么不能用本类成员属性中的socket, 可能是后期一个用户有多个socket用来同步发消息和发文件, 方便拓展or面对对象编程)
-             */
-            ObjectOutputStream oos = new ObjectOutputStream(
-                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
-            );
-            oos.writeObject(message);
-
+            SendMessageToServer(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,11 +133,7 @@ public class ClientService {
                 "对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\"");
 
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(
-                    ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
-            );
-            oos.writeObject(message);
-
+            SendMessageToServer(message);
         } catch (IOException e) {
             System.out.println("[" + message.getTime() + "] " +
                     message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" "+ message.getContent() + "\" "+ "失败, " +
@@ -161,4 +143,45 @@ public class ClientService {
     }
 
 
+    /**
+     * 群发消息
+     */
+    public void SendToAll() {
+        System.out.println("请输入想群发的话: ");
+        String content = Utility.readString(100);
+
+        Message message = new Message();
+        message.setSender(user.getUserId());
+        message.setContent(content);
+        message.setTime(DateUtils.getDataTime());
+        message.setMsgType(CommonUtils.MSG.TO_ALL_MESSAGE);
+
+        System.out.println("[" + message.getTime() + "] " +
+                "向 所有人 发送消息: " + "\"" + message.getContent() + "\"");
+
+        try {
+            SendMessageToServer(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 向服务端发送信息
+     * @param message 根据具体业务设置的消息
+     * @throws IOException
+     */
+    public void SendMessageToServer(Message message) throws IOException {
+        /*
+            1. 先从先从管理器中通过userId获取线程对象
+            2. 再通过线程对象获取socket
+            3. 通过socket获取对应的OutputStream
+            TODO (暂且不知道为什么不能用本类成员属性中的socket, 可能是后期一个用户有多个socket用来同步发消息和发文件, 方便拓展or面对对象编程)
+         */
+        ObjectOutputStream oos = new ObjectOutputStream(
+                ClientThreadManagerService.getThread(user.getUserId()).getSocket().getOutputStream()
+        );
+        oos.writeObject(message);
+    }
 }

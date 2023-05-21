@@ -18,6 +18,7 @@ public class CommonUtils {
         RET_ONLINE_USERS,
 
         TO_ONE_MESSAGE,
+        TO_ONE_MESSAGE_SUCCEEDED,
         TO_ONE_MESSAGE_FAILED,
         TO_ALL_MESSAGE
 

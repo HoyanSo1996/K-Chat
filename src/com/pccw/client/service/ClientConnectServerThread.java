@@ -2,6 +2,8 @@ package com.pccw.client.service;
 
 import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
+import com.pccw.utils.DateUtils;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -54,13 +56,19 @@ public class ClientConnectServerThread extends Thread {
                     ClientThreadManagerService.removeThread(userId);
                     break;
 
-                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE)) {
+                // (3)判断消息类型是否是 私聊消息成功
+                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE_SUCCEEDED)) {
                     System.out.println("[" + message.getTime() + "] " +
-                             "收到 " + message.getSender() + " 的消息: " + "\"" + message.getContent() + "\"");
+                            "收到 " + message.getSender() + " 的消息: " + "\"" + message.getContent() + "\"");
 
+                // (4)判断消息类型是否是 私聊消息失败
                 } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED)) {
                     System.out.println("[" + message.getTime() + "] " +
                             "发送消息: " + "\"" + message.getContent() + "\"" + " 失败, " + message.getReceiver() + " 不在线/不存在.");
+
+                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ALL_MESSAGE)) {
+                    System.out.println("[" + message.getTime() + "] " +
+                            "收到 " + message.getSender() + " 群发的消息: " + "\"" + message.getContent() + "\"");
 
                 } else {
                     // TODO 其他业务消息
@@ -68,7 +76,7 @@ public class ClientConnectServerThread extends Thread {
 
             } catch (SocketException e) {
                 // 如果服务器挂机, 由于循环中的 ois.readObject() 正在阻塞状态, 那么读取会报错, 直接跳到这一步.
-                System.out.println("info: 服务器异常, 断开连接... ");
+                System.out.println("[" + DateUtils.getDataTime() + "] " + "服务器异常, 断开连接... ");
 
                 try {
                     // 关闭socket

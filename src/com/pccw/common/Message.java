@@ -2,6 +2,8 @@ package com.pccw.common;
 
 import java.io.Serializable;
 
+import static com.pccw.common.CommonUtils.*;
+
 /**
  * Class Message
  *
@@ -15,18 +17,18 @@ public class Message implements Serializable {
     private String receiver;
     private String content;
     private String time;
-    private CommonUtils.MSG msgType;  // 消息类型(可以在接口中定义消息类型)
+    private MSG msgType;  // 消息类型(可以在接口中定义消息类型)
 
     public Message() {
     }
 
-    public Message(String sender, String receiver, String content, String time) {
+    public Message(String sender, String receiver, String content, String time, MSG msgType) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.time = time;
+        this.msgType = msgType;
     }
-
 
     public String getSender() {
         return sender;
@@ -60,11 +62,11 @@ public class Message implements Serializable {
         this.time = time;
     }
 
-    public CommonUtils.MSG getMsgType() {
+    public MSG getMsgType() {
         return msgType;
     }
 
-    public void setMsgType(CommonUtils.MSG msgType) {
+    public void setMsgType(MSG msgType) {
         this.msgType = msgType;
     }
 }
