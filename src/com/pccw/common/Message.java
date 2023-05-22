@@ -19,6 +19,11 @@ public class Message implements Serializable {
     private String time;
     private MSG msgType;  // 消息类型(可以在接口中定义消息类型)
 
+    // 文件传输相关
+    private String fileName;
+    private byte[] fileBytes;
+    private int fileLen;
+
     public Message() {
     }
 
@@ -68,5 +73,29 @@ public class Message implements Serializable {
 
     public void setMsgType(MSG msgType) {
         this.msgType = msgType;
+    }
+
+    public byte[] getFileBytes() {
+        return fileBytes;
+    }
+
+    public void setFileBytes(byte[] fileBytes) {
+        this.fileBytes = fileBytes;
+    }
+
+    public int getFileLen() {
+        return fileLen;
+    }
+
+    public void setFileLen(int fileLen) {
+        this.fileLen = fileLen;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

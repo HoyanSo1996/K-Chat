@@ -6,9 +6,7 @@ import com.pccw.common.User;
 import com.pccw.utils.DateUtils;
 import com.pccw.utils.Utility;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -116,19 +114,19 @@ public class ClientService {
     /**
      * 私聊功能
      */
-    public void privateChat() {
+    public void sendToOne() {
         System.out.println("请输入想聊天的用户号(在线): ");
         String receiverId = Utility.readString(20);
         System.out.println("请输入想说的话: ");
         String content = Utility.readString(100);
 
-        Message message = new Message();
         // 设置 发送者, 接受者, 内容, 日期, 消息类型
-        message.setSender(user.getUserId());
-        message.setReceiver(receiverId);
-        message.setContent(content);
-        message.setTime(DateUtils.getDataTime());
-        message.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE);
+        Message message = new Message(
+                user.getUserId(),
+                receiverId,
+                content,
+                DateUtils.getDataTime(),
+                CommonUtils.MSG.TO_ONE_MESSAGE);
         System.out.println("[" + message.getTime() + "] " +
                 "对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\"");
 
@@ -144,18 +142,18 @@ public class ClientService {
 
 
     /**
-     * 群发消息
+     * 群发消息功能
      */
     public void SendToAll() {
         System.out.println("请输入想群发的话: ");
         String content = Utility.readString(100);
 
-        Message message = new Message();
-        message.setSender(user.getUserId());
-        message.setContent(content);
-        message.setTime(DateUtils.getDataTime());
-        message.setMsgType(CommonUtils.MSG.TO_ALL_MESSAGE);
-
+        Message message = new Message(
+                user.getUserId(),
+                null,
+                content,
+                DateUtils.getDataTime(),
+                CommonUtils.MSG.TO_ALL_MESSAGE);
         System.out.println("[" + message.getTime() + "] " +
                 "向 所有人 发送消息: " + "\"" + message.getContent() + "\"");
 
@@ -164,6 +162,53 @@ public class ClientService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * 发送文件功能
+     *
+     * @Tips 暂时只支持int最大值 2^31 Byte, 即 2GB 大小文件的传输. 超过指定大小会损坏文件
+     *       如需传输更大的文件, 需要设置多个byte数组 或者 对文件边读边写...
+     */
+    public void sendFileToOne() {
+        System.out.println("请输入想发送文件的用户号(在线): ");
+        String receiverId = Utility.readString(20);
+        System.out.println("请输入发送的文件完整路径(形式 d:\\xxx.jpg): ");
+        String filePath = Utility.readString(100);
+
+        // 1.从磁盘中读取文件
+        File file = new File(filePath);
+        int fileLen = (int) file.length();
+        byte[] fileBytes = new byte[fileLen];
+        String[] split = filePath.split("\\\\");
+        String fileName = split[split.length - 1];
+
+        try(FileInputStream fis = new FileInputStream(file)) {
+            fis.read(fileBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 2.构建文件信息
+        Message message = new Message(
+                user.getUserId(),
+                receiverId,
+                null,
+                DateUtils.getDataTime(),
+                CommonUtils.MSG.TO_ONE_FILE_MESSAGE);
+        message.setFileName(fileName);
+        message.setFileBytes(fileBytes);
+        message.setFileLen(fileLen);
+
+        // 3.发送消息到服务器
+        try {
+            SendMessageToServer(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("对 " + receiverId + " 发送了文件: \"" + fileName + "\" .");
     }
 
 

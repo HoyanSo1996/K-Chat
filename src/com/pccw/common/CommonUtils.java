@@ -20,7 +20,11 @@ public class CommonUtils {
         TO_ONE_MESSAGE,
         TO_ONE_MESSAGE_SUCCEEDED,
         TO_ONE_MESSAGE_FAILED,
-        TO_ALL_MESSAGE
+        TO_ALL_MESSAGE,
+
+        TO_ONE_FILE_MESSAGE,
+        TO_ONE_FILE_MESSAGE_SUCCEEDED,
+        TO_ONE_FILE_MESSAGE_FAILED
 
     }
 }

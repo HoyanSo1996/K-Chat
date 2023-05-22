@@ -1,13 +1,15 @@
 package com.pccw.client.service;
 
-import com.pccw.common.CommonUtils;
 import com.pccw.common.Message;
 import com.pccw.utils.DateUtils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.SocketException;
+
+import static com.pccw.common.CommonUtils.MSG;
 
 /**
  * Class ClientConnectServerThread
@@ -40,7 +42,7 @@ public class ClientConnectServerThread extends Thread {
                 Message message = (Message) ois.readObject();
 
                 // (1)判断消息类型是否是 获取在线用户
-                if (message.getMsgType().equals(CommonUtils.MSG.RET_ONLINE_USERS)) {
+                if (message.getMsgType().equals(MSG.RET_ONLINE_USERS)) {
                     String onlineUsers = message.getContent();
                     String[] users = onlineUsers.split(" ");
                     System.out.println("\n=========== 在线用户列表 ===========");
@@ -49,26 +51,46 @@ public class ClientConnectServerThread extends Thread {
                     }
 
                 // (2)判断消息类型是否是 用户正常登出
-                } else if (message.getMsgType().equals(CommonUtils.MSG.LOGOUT_SUCCEEDED)) {
+                } else if (message.getMsgType().equals(MSG.LOGOUT_SUCCEEDED)) {
                     // 关闭socket
                     socket.close();
                     // 移除线程管理器中的对应的线程
                     ClientThreadManagerService.removeThread(userId);
                     break;
 
-                // (3)判断消息类型是否是 私聊消息成功
-                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE_SUCCEEDED)) {
+                // (3.1)判断消息类型是否是 私聊消息成功
+                } else if (message.getMsgType().equals(MSG.TO_ONE_MESSAGE_SUCCEEDED)) {
                     System.out.println("[" + message.getTime() + "] " +
                             "收到 " + message.getSender() + " 的消息: " + "\"" + message.getContent() + "\"");
 
-                // (4)判断消息类型是否是 私聊消息失败
-                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED)) {
+                // (3.2)判断消息类型是否是 私聊消息失败
+                } else if (message.getMsgType().equals(MSG.TO_ONE_MESSAGE_FAILED)) {
                     System.out.println("[" + message.getTime() + "] " +
                             "发送消息: " + "\"" + message.getContent() + "\"" + " 失败, " + message.getReceiver() + " 不在线/不存在.");
 
-                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ALL_MESSAGE)) {
+                // (4)判断消息类型是否是 私聊消息成功
+                } else if (message.getMsgType().equals(MSG.TO_ALL_MESSAGE)) {
                     System.out.println("[" + message.getTime() + "] " +
                             "收到 " + message.getSender() + " 群发的消息: " + "\"" + message.getContent() + "\"");
+
+                // (5.1)判断消息类型是否是 发送文件消息成功
+                } else if (message.getMsgType().equals(MSG.TO_ONE_FILE_MESSAGE_SUCCEEDED)) {
+                    // 设置文件保存路径
+                    String filePath = "C:\\WorkSpace\\test\\" + message.getFileName();
+
+                    try(FileOutputStream fos = new FileOutputStream(filePath)) {
+                        fos.write(message.getFileBytes(), 0, message.getFileLen());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("[" + message.getTime() + "] " +
+                            "收到 " + message.getSender() + " 的文件: " + "\"" + message.getFileName() + "\"");
+
+                // (5.1)判断消息类型是否是 发送文件消息失败
+                } else if (message.getMsgType().equals(MSG.TO_ONE_FILE_MESSAGE_FAILED)) {
+                    System.out.println("[" + message.getTime() + "] " +
+                            "发送文件: " + "\"" + message.getFileName() + "\"" + " 失败, " + message.getReceiver() + " 不在线/不存在.");
 
                 } else {
                     // TODO 其他业务消息

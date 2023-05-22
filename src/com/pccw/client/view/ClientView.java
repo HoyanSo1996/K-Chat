@@ -59,11 +59,11 @@ public class ClientView {
                                         Thread.sleep(50);
                                         break;
                                     case "3":
-                                        clientService.privateChat();
+                                        clientService.sendToOne();
                                         Thread.sleep(50);
                                         break;
                                     case "4":
-                                        // todo 发送文件
+                                        clientService.sendFileToOne();
                                         Thread.sleep(50);
                                         break;
                                     case "9":

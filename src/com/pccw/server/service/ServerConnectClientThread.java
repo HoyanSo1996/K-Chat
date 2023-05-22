@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Map;
 
+import static com.pccw.common.CommonUtils.*;
+
 /**
  * Class ServerConnectClientThread
  *
@@ -40,22 +42,22 @@ public class ServerConnectClientThread extends Thread {
                 Message message = (Message) ois.readObject();
 
                 // (1)判断消息类型是否是 获取在线用户
-                if (message.getMsgType().equals(CommonUtils.MSG.GET_ONLINE_USERS)) {
+                if (message.getMsgType().equals(MSG.GET_ONLINE_USERS)) {
                     System.out.println("log: { " + userId + " 请求在线用户列表.}");
 
                     Message responseMsg = new Message();
                     responseMsg.setReceiver(message.getSender());
-                    responseMsg.setMsgType(CommonUtils.MSG.RET_ONLINE_USERS);
+                    responseMsg.setMsgType(MSG.RET_ONLINE_USERS);
                     responseMsg.setContent(ServerThreadManagerService.getAllOnlineUsers());
 
                     // 转发消息给原客户端
                     sendMessageToClient(socket.getOutputStream(), responseMsg);
 
                 // (2)判断消息类型是否是 退出登录
-                } else if (message.getMsgType().equals(CommonUtils.MSG.LOGOUT)) {
+                } else if (message.getMsgType().equals(MSG.LOGOUT)) {
                     Message responseMsg = new Message();
                     responseMsg.setReceiver(message.getSender());
-                    responseMsg.setMsgType(CommonUtils.MSG.LOGOUT_SUCCEEDED);
+                    responseMsg.setMsgType(MSG.LOGOUT_SUCCEEDED);
 
                     // 转发消息给原客户端
                     sendMessageToClient(socket.getOutputStream(), responseMsg);
@@ -69,12 +71,12 @@ public class ServerConnectClientThread extends Thread {
                     break;
 
                 // (3)判断消息类型是否是 私聊消息
-                } else if (message.getMsgType().equals(CommonUtils.MSG.TO_ONE_MESSAGE)) {
+                } else if (message.getMsgType().equals(MSG.TO_ONE_MESSAGE)) {
                     // 获取目标客户端的socket
                     ServerConnectClientThread serverThread = ServerThreadManagerService.getThread(message.getReceiver());
 
                     // 如果线程不存在, 代表用户不在线, 发送一条消息表示用户未上线
-                    // 如果用户不存在, 可以保存到数据库, 这样就可以实现离线留言
+                    // todo: 如果用户不存在, 可以保存到数据库, 这样就可以实现离线留言
                     if (serverThread == null) {
                         System.out.println("log: { " + "[" + message.getTime() + "] " +
                                 message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\" " + message.getContent() + "\" " + "失败, " +
@@ -84,7 +86,7 @@ public class ServerConnectClientThread extends Thread {
                         responseMsg.setReceiver(message.getReceiver());
                         responseMsg.setContent(message.getContent());
                         responseMsg.setTime(DateUtils.getDataTime());
-                        responseMsg.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE_FAILED);
+                        responseMsg.setMsgType(MSG.TO_ONE_MESSAGE_FAILED);
 
                         // 转发消息给原客户端
                         sendMessageToClient(socket.getOutputStream(), responseMsg);
@@ -96,15 +98,15 @@ public class ServerConnectClientThread extends Thread {
                                   oos = new ObjectOutputStream(serverThread.socket.getOutputStream(), 否则会出现异常.
                          */
                         // 转发消息给指定客户端.
-                        message.setMsgType(CommonUtils.MSG.TO_ONE_MESSAGE_SUCCEEDED);
+                        message.setMsgType(MSG.TO_ONE_MESSAGE_SUCCEEDED);
                         sendMessageToClient(serverThread.socket.getOutputStream(), message);
 
                         System.out.println("log: { " + "[" + message.getTime() + "] " +
                                 message.getSender() + " 对 " + message.getReceiver() + " 发送消息: " + "\"" + message.getContent() + "\" }");
                     }
 
-                // (4)判断消息类型是否是 群发消息
-                } else if(message.getMsgType().equals(CommonUtils.MSG.TO_ALL_MESSAGE)) {
+                // (4)判断消息类型是否是 群发消息.
+                } else if(message.getMsgType().equals(MSG.TO_ALL_MESSAGE)) {
                     // 在线程管理器中获取所有在线用户(排除自己), 然后遍历发送群发消息
                     Map<String, ServerConnectClientThread> threadManager = ServerThreadManagerService.getThreadManager();
                     for (String onlineUserId : threadManager.keySet()) {
@@ -114,6 +116,37 @@ public class ServerConnectClientThread extends Thread {
                     }
                     System.out.println("log: { " + "[" + message.getTime() + "] " +
                             message.getSender() + " 群发了消息: " + "\"" + message.getContent() + "\" }");
+
+                // (5)判断消息类型是否是 发送文件消息.
+                } else if(message.getMsgType().equals(MSG.TO_ONE_FILE_MESSAGE)) {
+                    // 获取目标客户端的socket
+                    ServerConnectClientThread serverThread = ServerThreadManagerService.getThread(message.getReceiver());
+
+                    // 如果线程不存在, 代表用户不在线, 发送一条消息表示用户未上线
+                    if (serverThread == null) {
+                        System.out.println("log: { " + "[" + message.getTime() + "] " +
+                                message.getSender() + " 对 " + message.getReceiver() + " 发送文件: " + "\" " + message.getFileName() + "\" " + "失败, " +
+                                message.getReceiver() + " 不在线/不存在.}");
+
+                        Message responseMsg = new Message(
+                                null,
+                                message.getReceiver(),
+                                message.getContent(),
+                                DateUtils.getDataTime(),
+                                MSG.TO_ONE_FILE_MESSAGE_FAILED);
+
+                        // 转发消息给原客户端
+                        sendMessageToClient(socket.getOutputStream(), responseMsg);
+
+                        // 线程存在, 向线程所在socket转发消息
+                    } else {
+                        // 转发消息给指定客户端.
+                        message.setMsgType(MSG.TO_ONE_FILE_MESSAGE_SUCCEEDED);
+                        sendMessageToClient(serverThread.socket.getOutputStream(), message);
+
+                        System.out.println("log: { " + "[" + message.getTime() + "] " +
+                                message.getSender() + " 对 " + message.getReceiver() + " 发送文件: " + "\"" + message.getFileName() + "\" }");
+                    }
 
                 } else {
                     // TODO 拓展其他业务消息
