@@ -37,6 +37,9 @@ public class ServerService {
             System.out.println("服务器端在9999端口监听...");
             serverSocket = new ServerSocket(9999);
 
+            // 开启服务器推送新闻功能
+            new ServerThread().start();
+
             // 当和某个客户端建立连接后,会开启一个线程,然后循环等待下一个客户端的连接...
             while (true) {
                 Socket socket = serverSocket.accept();

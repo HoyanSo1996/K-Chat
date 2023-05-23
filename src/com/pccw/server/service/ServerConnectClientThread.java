@@ -31,6 +31,9 @@ public class ServerConnectClientThread extends Thread {
         this.socket = socket;
     }
 
+    public Socket getSocket() {
+        return socket;
+    }
 
     @Override
     public void run() {

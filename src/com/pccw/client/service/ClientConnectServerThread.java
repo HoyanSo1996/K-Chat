@@ -68,7 +68,7 @@ public class ClientConnectServerThread extends Thread {
                     System.out.println("[" + message.getTime() + "] " +
                             "发送消息: " + "\"" + message.getContent() + "\"" + " 失败, " + message.getReceiver() + " 不在线/不存在.");
 
-                // (4)判断消息类型是否是 私聊消息成功
+                // (4)判断消息类型是否是 群聊消息成功
                 } else if (message.getMsgType().equals(MSG.TO_ALL_MESSAGE)) {
                     System.out.println("[" + message.getTime() + "] " +
                             "收到 " + message.getSender() + " 群发的消息: " + "\"" + message.getContent() + "\"");
